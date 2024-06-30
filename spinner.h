@@ -25,6 +25,7 @@ class Spinner {
 };
 
 class Sum : public Spinner {
+    constexpr static int numElements = 1 << 10;
    public:
     Sum();
 
@@ -36,6 +37,7 @@ class Sum : public Spinner {
 };
 
 class SumByte : public Spinner {
+    constexpr static int numElements = 1 << 14;
    public:
     SumByte();
 
@@ -47,6 +49,7 @@ class SumByte : public Spinner {
 };
 
 class Float : public Spinner {
+    constexpr static int numElements = 1 << 10;
    public:
     Float();
 

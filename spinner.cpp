@@ -11,6 +11,7 @@
 #include <stop_token>
 #include <thread>
 #include <vector>
+#include <algorithm>
 
 static int setThreadAffinity(const int core_id) {
     cpu_set_t cpuset;
@@ -33,7 +34,7 @@ uint64_t Spinner::spinFunction(std::stop_token stop) {
     return counter;
 }
 
-Sum::Sum() : m_v(1 << 10) {
+Sum::Sum() : m_v(numElements) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, 100);
@@ -56,7 +57,7 @@ uint64_t Sum::spinFunction(std::stop_token stop) {
     return i;
 }
 
-SumByte::SumByte() : m_v(1 << 14) {
+SumByte::SumByte() : m_v(numElements) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, 100);
@@ -75,7 +76,7 @@ uint64_t SumByte::spinFunction(std::stop_token stop) {
     return i;
 }
 
-Float::Float() : m_v(1 << 10) {
+Float::Float() : m_v(numElements) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(1, 100);
