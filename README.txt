@@ -10,3 +10,7 @@ Options:
 -f Float test (Accumulates buffers of floats)
 -l Large test (Accumulates bytes in a large (1GB) buffer - should stress memory bandwidth)
 -h Show this message
+
+Builds on Linux with G++. Tested in WSL and on RPI (ARM)
+
+g++ -Wall -Wextra -std=c++20  -O3 -lpthread -march=native -o spin main.cpp spinner.cpp
