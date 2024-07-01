@@ -33,7 +33,7 @@ class Spinner {
 };
 
 class Sum : public Spinner {
-    constexpr static int numElements = 1 << 10;
+    constexpr static int numElements = 1 << 10; // 16KB
    public:
     Sum();
     ~Sum() override;
@@ -46,7 +46,7 @@ class Sum : public Spinner {
 };
 
 class SumByte : public Spinner {
-    constexpr static int numElements = 1 << 14;
+    constexpr static int numElements = 1 << 14; // 16KB
    public:
     SumByte();
     ~SumByte() override;
@@ -59,7 +59,7 @@ class SumByte : public Spinner {
 };
 
 class Float : public Spinner {
-    constexpr static int numElements = 1 << 10;
+    constexpr static int numElements = 1 << 10; // 16KB
    public:
     Float();
     ~Float() override;
@@ -69,6 +69,32 @@ class Float : public Spinner {
 
    private:
     std::vector<float> m_v;
+};
+
+class Large : public Spinner {
+    constexpr static int64_t numElements = 1e9;  // 1GB
+   public:
+    Large();
+    ~Large() override;
+
+   protected:
+    uint64_t spinFunction(std::stop_token stop) override;
+
+   private:
+    std::vector<uint8_t> m_v;
+};
+
+class Rand : public Spinner {
+    constexpr static int64_t numElements = 1 << 20; // 1MB
+   public:
+    Rand();
+    ~Rand() override;
+
+   protected:
+    uint64_t spinFunction(std::stop_token stop) override;
+
+   private:
+    std::vector<int> m_v;
 };
 
 #endif  // SPINNER_H

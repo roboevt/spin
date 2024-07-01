@@ -173,3 +173,76 @@ uint64_t Float::spinFunction(std::stop_token stop) {
 Float::~Float() {
     if (logResults) std::cout << "Float ";
 }
+
+Large::Large() : m_v(numElements) {
+    // Noo need to initialize since we don't actually care about the values, and it takes a long time
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    // std::uniform_int_distribution<> dis(1, 100);
+    // std::generate(m_v.begin(), m_v.end(), [&]() { return dis(gen); });
+}
+
+uint64_t Large::spinFunction(std::stop_token stop) {
+    uint64_t sum = 0, i = 0;
+    constexpr int partitions = 12;
+    while (!stop.stop_requested()) {
+        for(int j = 0; j < partitions && !stop.stop_requested(); j++) {
+            int64_t start = j * numElements / partitions;
+            int64_t end = (j + 1) * numElements / partitions;
+            sum += std::accumulate(m_v.begin() + start, m_v.begin() + end, 0);
+        }
+        i += m_v.size();
+    }
+    use(sum);
+    return i;
+}
+
+Large::~Large() {
+    if (logResults) std::cout << "Large ";
+}
+
+Rand::Rand() : m_v(numElements) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, numElements);
+    std::generate(m_v.begin(), m_v.end(), [&]() { return dis(gen); });
+}
+
+uint64_t Rand::spinFunction(std::stop_token stop) {
+    uint64_t count = 0, a=0, b=0;
+    while (!stop.stop_requested()) {
+        for(uint i = 0; i < m_v.size() - 4; i+=4) {
+            if(m_v[i] < numElements / 2) {
+                a += m_v[i];
+            } else {
+                b += m_v[i];
+            }
+            i++;
+            if(m_v[i] < numElements / 2) {
+                a += m_v[i];
+            } else {
+                b += m_v[i];
+            }
+            i++;
+            if(m_v[i] < numElements / 2) {
+                a += m_v[i];
+            } else {
+                b += m_v[i];
+            }
+            i++;
+            if(m_v[i] < numElements / 2) {
+                a += m_v[i];
+            } else {
+                b += m_v[i];
+            }
+        }
+        count += m_v.size();
+    }
+    use(a);
+    use(b);
+    return count;
+}
+
+Rand::~Rand() {
+    if (logResults) std::cout << "Rand ";
+}

@@ -16,19 +16,22 @@ void incrementalCoreTest(const int maxThreads, const std::chrono::duration<doubl
     Sum sum;
     SumByte sumByte;
     Float f;
+    Rand r;
     spinner.setQuiet();
     sum.setQuiet();
     sumByte.setQuiet();
     f.setQuiet();
+    r.setQuiet();
 
-    cout << "Cores\tAdd\tSum\tBytes\tFloat\t(GOPS)" << endl;
+    cout << "Cores\tAdd\tSum\tBytes\tFloat\tRand\t(GOPS)" << endl;
     for (int i = 0; i < maxThreads; ++i) {
         Stats addStats = spinner.spinThreads(i + 1, duration);
         Stats sumStats = sum.spinThreads(i + 1, duration);
         Stats sumByteStats = sumByte.spinThreads(i + 1, duration);
         Stats floatStats = f.spinThreads(i + 1, duration);
+        Stats randStats = r.spinThreads(i + 1, duration);
         cout << i + 1 << "\t" << addStats.allCoreRate() << "\t" << sumStats.allCoreRate() << "\t"
-             << sumByteStats.allCoreRate() << "\t" << floatStats.allCoreRate() << endl;
+             << sumByteStats.allCoreRate() << "\t" << floatStats.allCoreRate() <<  "\t" << randStats.allCoreRate() << endl;
     }
 }
 
@@ -54,10 +57,12 @@ int usage() {
     std::cout << "-d <num> Duration (Default 1s) For incremental test, this is the time each segment of the test will run for" << std::endl;
     std::cout << "-i Incremental core test (Default)" << std::endl;
     std::cout << "-m Max core test" << std::endl;
-    std::cout << "-a Add test" << std::endl;
-    std::cout << "-s Sum test" << std::endl;
-    std::cout << "-b Sum byte test" << std::endl;
-    std::cout << "-f Float test" << std::endl;
+    std::cout << "-a Add test (Increments a counter)" << std::endl;
+    std::cout << "-s Sum test (Sums values in a buffer)" << std::endl;
+    std::cout << "-b Sum byte test (Sums byte values in a counter (great opportunity for SIMD))" << std::endl;
+    std::cout << "-f Float test (Accumulates buffers of floats)" << std::endl;
+    std::cout << "-r Random test (Branches based on random values, around 40% missed branches on AMD 5900x)" << std::endl;
+    std::cout << "-l Large test (Accumulates bytes in a large (1GB) buffer - should stress memory bandwidth)" << std::endl;
     std::cout << "-h Show this message" << std::endl;
     return 1;
 }
@@ -66,14 +71,14 @@ auto main(int argc, char** argv) -> int {
     using namespace std::chrono_literals;
     std::cout << std::fixed << std::setprecision(2);
 
-    enum class TestType { MAX, INCREMENTAL, ADD, SUM, SUM_BYTE, FLOAT} testType = TestType::INCREMENTAL;
+    enum class TestType { MAX, INCREMENTAL, ADD, SUM, SUM_BYTE, FLOAT, LARGE, RAND} testType = TestType::INCREMENTAL;
 
     int maxThreads = std::thread::hardware_concurrency();
     std::chrono::duration<double> duration = 1s;
 
     int c;
 
-    while((c = getopt(argc, argv, "n:d:himasbf")) != -1) {
+    while((c = getopt(argc, argv, "n:d:himasbflr")) != -1) {
         switch(c) {
             case 'n':
                 maxThreads = std::stoi(optarg);
@@ -101,6 +106,12 @@ auto main(int argc, char** argv) -> int {
             case 'f':
                 testType = TestType::FLOAT;
                 break;
+            case 'l':
+                testType = TestType::LARGE;
+                break;
+            case 'r':
+                testType = TestType::RAND;
+                break;
         }
     }
     
@@ -126,6 +137,14 @@ auto main(int argc, char** argv) -> int {
         case TestType::FLOAT: {
             Float f;
             f.spinThreads(maxThreads, duration);
+            break; }
+        case TestType::LARGE: {
+            Large l;
+            l.spinThreads(maxThreads, duration);
+            break; }
+        case TestType::RAND: {
+            Rand r;
+            r.spinThreads(maxThreads, duration);
             break; }
     }
 
